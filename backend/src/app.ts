@@ -15,28 +15,18 @@ export const createApp = () => {
   app.disable("x-powered-by");
 
   app.use(helmet());
-  const allowedOrigins = [
-  "http://localhost:3000",
-  "https://hotwheels-marketplace.vercel.app",
-];
 
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      // allow non-browser tools like curl/Postman (no origin)
-      if (!origin) {
-        return callback(null, true);
-      }
+  // CORS: reflect the request origin (localhost, Vercel, etc.)
+  app.use(
+    cors({
+      origin: true,        // echo back whatever Origin the browser sends
+      credentials: true,   // allow cookies / auth headers if needed
+    })
+  );
 
-      if (allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      }
+  // Optional but nice: handle preflight for all routes
+  app.options("*", cors({ origin: true, credentials: true }));
 
-      return callback(new Error("Not allowed by CORS"));
-    },
-    credentials: true,
-  })
-);
 
   app.use(express.json({ limit: "10mb" }));
   app.use(express.urlencoded({ extended: true, limit: "10mb" }));
